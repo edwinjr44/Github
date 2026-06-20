@@ -222,7 +222,7 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
 const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
 let state = Object.assign({ name:"Edwin", city:"", gh:"edwinjr44", notion:"", todos:[], notes:"" }, load());
 const MARKET_MOVERS_REFRESH_MS = 5 * 60 * 1000;
-const MARKET_NEWS_QUERY = "trump";
+const TRUMP_NEWS_QUERY = "trump";
 
 /* ---------- header ---------- */
 function paintHeader(){
@@ -348,7 +348,7 @@ async function fetchFedFundsRate(){
   throw new Error("No valid Fed Funds rate data available");
 }
 async function fetchTrumpHeadlines(){
-  const r = await fetch(`https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(MARKET_NEWS_QUERY)}&mode=ArtList&maxrecords=3&sort=DateDesc&format=json`);
+  const r = await fetch(`https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(TRUMP_NEWS_QUERY)}&mode=ArtList&maxrecords=3&sort=DateDesc&format=json`);
   if(!r.ok) throw new Error("Failed to fetch headlines");
   const j = await r.json();
   const items = Array.isArray(j.articles) ? j.articles : [];
@@ -469,7 +469,7 @@ document.getElementById("saveBtn").onclick=()=>{
 
 /* ---------- boot ---------- */
 paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadMarketMovers(); loadNotion();
-setInterval(loadMarketMovers, MARKET_MOVERS_REFRESH_MS);
+window.marketMoversIntervalId = setInterval(loadMarketMovers, MARKET_MOVERS_REFRESH_MS);
 </script>
 </body>
 </html>
