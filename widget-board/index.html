@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Widget Board</title>
+<style>
+  :root{
+    --bg:#0b0f1a; --panel:#121828; --panel2:#0f1422; --text:#e8edf7; --muted:#9aa6bd;
+    --accent:#5b8cff; --accent2:#7ef0c2; --line:#212a40; --danger:#ff6b6b; --warn:#ffce5b;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    background:radial-gradient(1100px 600px at 80% -10%,#16203a,transparent),var(--bg);
+    color:var(--text);min-height:100vh;line-height:1.5;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 22px 60px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;flex-wrap:wrap;gap:12px}
+  .hello{font-size:24px;font-weight:700}
+  .hello span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .gear{background:var(--panel);border:1px solid var(--line);color:var(--text);
+    width:42px;height:42px;border-radius:12px;cursor:pointer;font-size:18px;transition:.2s}
+  .gear:hover{border-color:var(--accent)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;align-items:start}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px;transition:border-color .2s,transform .2s}
+  .card:hover{border-color:#2c3a5c}
+  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+    display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
+  .dot.off{background:var(--muted);box-shadow:none}
+
+  /* clock */
+  .clock-time{font-size:46px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+  .clock-date{color:var(--muted);font-size:14px;margin-top:4px}
+
+  /* weather */
+  .wx-main{display:flex;align-items:center;gap:14px}
+  .wx-temp{font-size:42px;font-weight:700;font-variant-numeric:tabular-nums}
+  .wx-emoji{font-size:40px}
+  .wx-desc{color:var(--muted);font-size:14px;margin-top:6px}
+  .wx-loc{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* todo */
+  .todo-add{display:flex;gap:8px;margin-bottom:12px}
+  input,textarea,.fld{background:#0c1120;border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;width:100%}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:0 16px;
+    font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.sm{padding:8px 14px}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  ul.todo{list-style:none;display:flex;flex-direction:column;gap:8px;max-height:230px;overflow:auto}
+  ul.todo li{display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0}
+  ul.todo li.done span{text-decoration:line-through;color:var(--muted)}
+  ul.todo li span{flex:1;cursor:pointer}
+  .x{color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+  .x:hover{color:var(--danger)}
+  .empty{color:var(--muted);font-size:13px;font-style:italic}
+
+  /* notes */
+  textarea.notes{min-height:150px;resize:vertical}
+  .saved{font-size:11px;color:var(--accent2);margin-top:6px;height:14px}
+
+  /* repo list */
+  .repo{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .repo:last-child{border:none}
+  .repo a{color:var(--text);text-decoration:none;font-weight:600}
+  .repo a:hover{color:var(--accent)}
+  .repo .meta{color:var(--muted);font-size:12px;white-space:nowrap}
+
+  /* connection card body */
+  .conn-note{color:var(--muted);font-size:13px;line-height:1.5}
+  .conn-note code{background:#0c1120;border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:12px}
+  .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .pill.live{color:var(--accent2);border-color:#244}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(4,7,14,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:460px;width:100%}
+  .modal h2{font-size:18px;margin-bottom:4px}
+  .modal p.lead{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+  .hr{height:1px;background:var(--line);margin:18px 0}
+  .footer-note{color:var(--muted);font-size:12px;text-align:center;margin-top:34px}
+  a.link{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="hello">Good <span id="partOfDay">day</span>, <span id="userName">Edwin</span></div>
+      <div class="sub" id="topSub">Your widget board</div>
+    </div>
+    <button class="gear" id="gearBtn" title="Settings">&#9881;</button>
+  </div>
+
+  <div class="grid" id="grid">
+
+    <!-- CLOCK -->
+    <div class="card">
+      <h3><span class="dot"></span>Clock</h3>
+      <div class="clock-time" id="clockTime">--:--</div>
+      <div class="clock-date" id="clockDate">—</div>
+    </div>
+
+    <!-- WEATHER -->
+    <div class="card">
+      <h3><span class="dot" id="wxDot"></span>Weather</h3>
+      <div class="wx-main">
+        <div class="wx-emoji" id="wxEmoji">⛅</div>
+        <div class="wx-temp" id="wxTemp">--°</div>
+      </div>
+      <div class="wx-desc" id="wxDesc">Loading…</div>
+      <div class="wx-loc" id="wxLoc"></div>
+    </div>
+
+    <!-- TODO -->
+    <div class="card">
+      <h3><span class="dot"></span>To-do</h3>
+      <div class="todo-add">
+        <input id="todoInput" placeholder="Add a task…" />
+        <button class="btn" id="todoAdd">Add</button>
+      </div>
+      <ul class="todo" id="todoList"></ul>
+    </div>
+
+    <!-- NOTES -->
+    <div class="card">
+      <h3><span class="dot"></span>Quick notes</h3>
+      <textarea class="notes" id="notes" placeholder="Jot something down… (saves automatically)"></textarea>
+      <div class="saved" id="notesSaved"></div>
+    </div>
+
+    <!-- GITHUB (live connection) -->
+    <div class="card">
+      <h3><span class="dot" id="ghDot"></span>GitHub <span class="pill live">live</span></h3>
+      <div id="ghBody"><div class="empty">Loading repos…</div></div>
+    </div>
+
+    <!-- NOTION (configurable connection) -->
+    <div class="card">
+      <h3><span class="dot off" id="notionDot"></span>Notion <span class="pill" id="notionPill">not connected</span></h3>
+      <div id="notionBody"></div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    Single-file widget board · runs in any browser · data saved locally on this device.
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Settings</h2>
+    <p class="lead">Saved on this device only (localStorage). Nothing leaves your browser.</p>
+
+    <div class="field">
+      <label>Your name</label>
+      <input id="setName" placeholder="Edwin" />
+    </div>
+    <div class="field">
+      <label>Weather city (blank = use my location)</label>
+      <input id="setCity" placeholder="e.g. Toronto" />
+    </div>
+    <div class="field">
+      <label>GitHub username (for the repos widget)</label>
+      <input id="setGh" placeholder="edwinjr44" />
+    </div>
+
+    <div class="hr"></div>
+
+    <h2 style="font-size:15px">Notion connection</h2>
+    <p class="lead" style="margin-bottom:14px">
+      Browsers can't call Notion's API directly (CORS + token safety), so the widget reads
+      from a small proxy you host. Paste its URL below. See the README for a 12-line proxy.
+    </p>
+    <div class="field">
+      <label>Notion proxy URL (returns JSON list of items)</label>
+      <input id="setNotion" placeholder="https://your-proxy.workers.dev/tasks" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost sm" id="closeBtn">Cancel</button>
+      <button class="btn sm" id="saveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- tiny storage helper ---------- */
+const KEY = "widgetBoard.v1";
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+let state = Object.assign({ name:"Edwin", city:"", gh:"edwinjr44", notion:"", todos:[], notes:"" }, load());
+
+/* ---------- header ---------- */
+function paintHeader(){
+  const h = new Date().getHours();
+  document.getElementById("partOfDay").textContent = h<12 ? "morning" : h<18 ? "afternoon" : "evening";
+  document.getElementById("userName").textContent = state.name || "there";
+}
+
+/* ---------- clock ---------- */
+function tick(){
+  const d = new Date();
+  document.getElementById("clockTime").textContent =
+    d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  document.getElementById("clockDate").textContent =
+    d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric", year:"numeric"});
+}
+setInterval(tick, 1000); tick();
+
+/* ---------- weather (Open-Meteo, no API key) ---------- */
+const WX = {0:["☀️","Clear sky"],1:["🌤️","Mainly clear"],2:["⛅","Partly cloudy"],3:["☁️","Overcast"],
+  45:["🌫️","Fog"],48:["🌫️","Rime fog"],51:["🌦️","Light drizzle"],53:["🌦️","Drizzle"],55:["🌧️","Dense drizzle"],
+  61:["🌧️","Light rain"],63:["🌧️","Rain"],65:["🌧️","Heavy rain"],71:["🌨️","Light snow"],73:["🌨️","Snow"],
+  75:["❄️","Heavy snow"],80:["🌦️","Rain showers"],81:["🌧️","Showers"],82:["⛈️","Violent showers"],
+  95:["⛈️","Thunderstorm"],96:["⛈️","Storm w/ hail"]};
+async function geocode(city){
+  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`);
+  const j = await r.json(); if(!j.results||!j.results.length) throw new Error("city");
+  const g = j.results[0]; return {lat:g.latitude, lon:g.longitude, label:`${g.name}, ${g.country_code}`};
+}
+async function fetchWx(lat,lon,label){
+  const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=celsius`);
+  const j = await r.json(); const c = j.current;
+  const [emoji,desc] = WX[c.weather_code] || ["🌡️","—"];
+  document.getElementById("wxEmoji").textContent = emoji;
+  document.getElementById("wxTemp").textContent = Math.round(c.temperature_2m)+"°";
+  document.getElementById("wxDesc").textContent = desc;
+  document.getElementById("wxLoc").textContent = label;
+  document.getElementById("wxDot").classList.remove("off");
+}
+function loadWeather(){
+  document.getElementById("wxDot").classList.add("off");
+  document.getElementById("wxDesc").textContent = "Loading…";
+  if(state.city){
+    geocode(state.city).then(g=>fetchWx(g.lat,g.lon,g.label))
+      .catch(()=>{document.getElementById("wxDesc").textContent="Couldn't find that city";});
+  } else if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      p=>fetchWx(p.coords.latitude,p.coords.longitude,"Your location"),
+      ()=>geocode("Toronto").then(g=>fetchWx(g.lat,g.lon,g.label)).catch(()=>{}),
+      {timeout:8000}
+    );
+  } else { geocode("Toronto").then(g=>fetchWx(g.lat,g.lon,g.label)).catch(()=>{}); }
+}
+
+/* ---------- to-do ---------- */
+function renderTodos(){
+  const ul = document.getElementById("todoList"); ul.innerHTML="";
+  if(!state.todos.length){ ul.innerHTML='<li class="empty">No tasks yet — add one above.</li>'; return; }
+  state.todos.forEach((t,i)=>{
+    const li=document.createElement("li"); if(t.done) li.className="done";
+    const span=document.createElement("span"); span.textContent=t.text;
+    span.onclick=()=>{ state.todos[i].done=!state.todos[i].done; save(state); renderTodos(); };
+    const x=document.createElement("span"); x.className="x"; x.textContent="✕";
+    x.onclick=()=>{ state.todos.splice(i,1); save(state); renderTodos(); };
+    li.append(span,x); ul.appendChild(li);
+  });
+}
+function addTodo(){
+  const inp=document.getElementById("todoInput"); const v=inp.value.trim();
+  if(!v) return; state.todos.push({text:v,done:false}); inp.value=""; save(state); renderTodos();
+}
+document.getElementById("todoAdd").onclick=addTodo;
+document.getElementById("todoInput").addEventListener("keydown",e=>{ if(e.key==="Enter") addTodo(); });
+
+/* ---------- notes (autosave) ---------- */
+const notesEl=document.getElementById("notes"); notesEl.value=state.notes||"";
+let notesTimer;
+notesEl.addEventListener("input",()=>{
+  clearTimeout(notesTimer);
+  notesTimer=setTimeout(()=>{
+    state.notes=notesEl.value; save(state);
+    const s=document.getElementById("notesSaved"); s.textContent="Saved ✓";
+    setTimeout(()=>s.textContent="",1200);
+  },400);
+});
+
+/* ---------- GitHub repos (live, CORS-friendly) ---------- */
+async function loadGitHub(){
+  const body=document.getElementById("ghBody"); const dot=document.getElementById("ghDot");
+  const user=state.gh||"edwinjr44"; dot.classList.add("off");
+  body.innerHTML='<div class="empty">Loading repos…</div>';
+  try{
+    const r=await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/repos?sort=updated&per_page=5`);
+    if(!r.ok) throw new Error(r.status);
+    const repos=await r.json();
+    if(!repos.length){ body.innerHTML='<div class="empty">No public repos yet.</div>'; dot.classList.remove("off"); return; }
+    body.innerHTML="";
+    repos.forEach(repo=>{
+      const row=document.createElement("div"); row.className="repo";
+      const a=document.createElement("a"); a.href=repo.html_url; a.target="_blank"; a.textContent=repo.name;
+      const m=document.createElement("span"); m.className="meta";
+      m.textContent=`★ ${repo.stargazers_count} · ${repo.language||"—"}`;
+      row.append(a,m); body.appendChild(row);
+    });
+    dot.classList.remove("off");
+  }catch(e){
+    body.innerHTML=`<div class="empty">Couldn't load repos for "${user}".</div>`;
+  }
+}
+
+/* ---------- Notion (proxy-based connection) ---------- */
+async function loadNotion(){
+  const body=document.getElementById("notionBody");
+  const dot=document.getElementById("notionDot"); const pill=document.getElementById("notionPill");
+  if(!state.notion){
+    dot.classList.add("off"); pill.textContent="not connected"; pill.className="pill";
+    body.innerHTML=`<div class="conn-note">
+      Connect a Notion database to show its items here. Add a <b>proxy URL</b> in
+      <span style="color:var(--accent)">⚙ Settings</span>.<br><br>
+      The proxy holds your secret token server-side and returns JSON like
+      <code>[{"title":"…"}]</code>. README has a ready-to-paste Cloudflare Worker.</div>`;
+    return;
+  }
+  pill.textContent="connecting…"; pill.className="pill";
+  body.innerHTML='<div class="empty">Loading from Notion…</div>';
+  try{
+    const r=await fetch(state.notion); if(!r.ok) throw new Error(r.status);
+    const items=await r.json();
+    const list=Array.isArray(items)?items:(items.results||items.items||[]);
+    if(!list.length){ body.innerHTML='<div class="empty">Connected — no items returned.</div>'; }
+    else{
+      body.innerHTML="";
+      list.slice(0,6).forEach(it=>{
+        const t=it.title||it.name||it.text||JSON.stringify(it).slice(0,60);
+        const row=document.createElement("div"); row.className="repo";
+        const s=document.createElement("span"); s.textContent=t; row.appendChild(s); body.appendChild(row);
+      });
+    }
+    dot.classList.remove("off"); pill.textContent="live"; pill.className="pill live";
+  }catch(e){
+    dot.classList.add("off"); pill.textContent="error"; pill.className="pill";
+    body.innerHTML='<div class="empty">Couldn\'t reach the proxy. Check the URL in Settings.</div>';
+  }
+}
+
+/* ---------- settings modal ---------- */
+const overlay=document.getElementById("overlay");
+function openSettings(){
+  document.getElementById("setName").value=state.name||"";
+  document.getElementById("setCity").value=state.city||"";
+  document.getElementById("setGh").value=state.gh||"";
+  document.getElementById("setNotion").value=state.notion||"";
+  overlay.classList.add("open");
+}
+function closeSettings(){ overlay.classList.remove("open"); }
+document.getElementById("gearBtn").onclick=openSettings;
+document.getElementById("closeBtn").onclick=closeSettings;
+overlay.addEventListener("click",e=>{ if(e.target===overlay) closeSettings(); });
+document.getElementById("saveBtn").onclick=()=>{
+  state.name=document.getElementById("setName").value.trim()||"there";
+  state.city=document.getElementById("setCity").value.trim();
+  state.gh=document.getElementById("setGh").value.trim()||"edwinjr44";
+  state.notion=document.getElementById("setNotion").value.trim();
+  save(state); closeSettings();
+  paintHeader(); loadWeather(); loadGitHub(); loadNotion();
+};
+
+/* ---------- boot ---------- */
+paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadNotion();
+</script>
+</body>
+</html>
