@@ -221,6 +221,7 @@ const KEY = "widgetBoard.v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
 const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
 let state = Object.assign({ name:"Edwin", city:"", gh:"edwinjr44", notion:"", todos:[], notes:"" }, load());
+const MARKET_MOVERS_REFRESH_MS = 5 * 60 * 1000;
 
 /* ---------- header ---------- */
 function paintHeader(){
@@ -399,7 +400,7 @@ async function loadMarketMovers(){
     } else {
       const empty = document.createElement("div");
       empty.className = "mm-empty";
-      empty.textContent = "No Trump headlines returned right now.";
+      empty.textContent = "No recent headlines available right now.";
       body.appendChild(empty);
     }
     dot.classList.remove("off");
@@ -467,7 +468,6 @@ document.getElementById("saveBtn").onclick=()=>{
 
 /* ---------- boot ---------- */
 paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadMarketMovers(); loadNotion();
-const MARKET_MOVERS_REFRESH_MS = 5 * 60 * 1000;
 setInterval(loadMarketMovers, MARKET_MOVERS_REFRESH_MS);
 </script>
 </body>
