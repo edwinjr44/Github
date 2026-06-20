@@ -9,6 +9,7 @@ A single-file widget dashboard — like a personal Windows widgets board, but it
 - **To-do** — add / check off / delete tasks, saved on your device
 - **Quick notes** — a scratchpad that autosaves
 - **GitHub** — your latest repos, pulled live from the GitHub API (works out of the box)
+- **Market movers** — live Fed Funds rate + latest Trump-related headlines
 - **Notion** — connect a Notion database via a small proxy (see below)
 
 All personal data (tasks, notes, settings) is stored in your browser's `localStorage` — nothing is uploaded anywhere.
