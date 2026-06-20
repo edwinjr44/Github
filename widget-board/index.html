@@ -356,6 +356,14 @@ async function fetchTrumpHeadlines(){
     source:a.source || "news"
   }));
 }
+function safeLink(url){
+  try{
+    const u = new URL(url);
+    return (u.protocol === "http:" || u.protocol === "https:") ? u.href : "#";
+  }catch{
+    return "#";
+  }
+}
 async function loadMarketMovers(){
   const body = document.getElementById("mmBody");
   const dot = document.getElementById("mmDot");
@@ -363,14 +371,37 @@ async function loadMarketMovers(){
   body.innerHTML = '<div class="mm-empty">Loading market signals…</div>';
   try{
     const [fed, headlines] = await Promise.all([fetchFedFundsRate(), fetchTrumpHeadlines()]);
-    const headlineRows = headlines.length
-      ? `<ul class="mm-list">${headlines.map(h=>`<li><a href="${h.url}" target="_blank" rel="noopener noreferrer">${h.title}</a> <span class="mm-meta">· ${h.source}</span></li>`).join("")}</ul>`
-      : '<div class="mm-empty">No Trump headlines returned right now.</div>';
-    body.innerHTML = `
-      <div class="mm-rate">${fed.value.toFixed(2)}%</div>
-      <div class="mm-rate-sub">Fed Funds (latest reported: ${fed.date})</div>
-      ${headlineRows}
-    `;
+    body.innerHTML = "";
+    const rate = document.createElement("div");
+    rate.className = "mm-rate";
+    rate.textContent = `${fed.value.toFixed(2)}%`;
+    const rateSub = document.createElement("div");
+    rateSub.className = "mm-rate-sub";
+    rateSub.textContent = `Fed Funds (latest reported: ${fed.date})`;
+    body.append(rate, rateSub);
+    if(headlines.length){
+      const ul = document.createElement("ul");
+      ul.className = "mm-list";
+      headlines.forEach(h=>{
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = safeLink(h.url);
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = h.title;
+        const meta = document.createElement("span");
+        meta.className = "mm-meta";
+        meta.textContent = ` · ${h.source}`;
+        li.append(a, meta);
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    } else {
+      const empty = document.createElement("div");
+      empty.className = "mm-empty";
+      empty.textContent = "No Trump headlines returned right now.";
+      body.appendChild(empty);
+    }
     dot.classList.remove("off");
   }catch{
     body.innerHTML = '<div class="mm-empty">Market feed unavailable. Try again in a few minutes.</div>';
@@ -436,7 +467,8 @@ document.getElementById("saveBtn").onclick=()=>{
 
 /* ---------- boot ---------- */
 paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadMarketMovers(); loadNotion();
-setInterval(loadMarketMovers, 300000);
+const MARKET_MOVERS_REFRESH_MS = 5 * 60 * 1000;
+setInterval(loadMarketMovers, MARKET_MOVERS_REFRESH_MS);
 </script>
 </body>
 </html>
