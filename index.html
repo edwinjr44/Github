@@ -89,6 +89,7 @@
       overflow:hidden;
       position:relative;
     }
+    .panel.focused{outline:1px solid rgba(61,220,151,.28); outline-offset:2px}
     .panel.dark{
       background:
         radial-gradient(1000px 500px at 0% 0%, rgba(61,220,151,.08), transparent 40%),
@@ -612,6 +613,8 @@
     ];
 
     const STORAGE_KEY = "momentum.daily.v1";
+    const MIN_GAIN = 0.0001;
+    const CHORD_DELAY_SEC = 0.01;
     const pad = n => String(n).padStart(2, "0");
     function formatDateKey(date) {
       return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -794,11 +797,11 @@
         const gain = ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(gainValue / (i + 1), now + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        gain.gain.setValueAtTime(MIN_GAIN, now);
+        gain.gain.exponentialRampToValueAtTime(gainValue / (i + 1), now + CHORD_DELAY_SEC);
+        gain.gain.exponentialRampToValueAtTime(MIN_GAIN, now + duration);
         osc.connect(gain).connect(ctx.destination);
-        osc.start(now + i * 0.01);
+        osc.start(now + i * CHORD_DELAY_SEC);
         osc.stop(now + duration + 0.03);
       });
     }
@@ -888,10 +891,8 @@
     function renderQuestionBox(entry) {
       const q = qById(selectedQuadrant);
       const current = currentQuestion(entry, selectedQuadrant);
-      const answered = currentQuestionIndexComplete(entry, selectedQuadrant);
       const complete = isQuadrantComplete(entry, selectedQuadrant);
       const combo = currentCombo(entry, selectedQuadrant);
-      const hot = combo >= 6 ? "hot" : "";
       const box = document.getElementById("questionBox");
       if (complete) {
         box.innerHTML = `
@@ -973,12 +974,12 @@
       note.oninput = () => {
         q4.complaints.note = note.value;
         q4.complaints.flagged = true;
-        saveAndRender({ skipSave: false });
+        saveAndRender();
       };
       toggle.onclick = () => {
         q4.complaints.flagged = !q4.complaints.flagged;
         if (!q4.complaints.flagged) q4.complaints.note = "";
-        saveAndRender({ skipSave: false });
+        saveAndRender();
       };
     }
     function renderLiveMetrics(entry, status) {
@@ -1127,6 +1128,16 @@
         .replace(/'/g, "&#39;");
     }
     function bindControls() {
+      document.getElementById("liveChip").onclick = () => {
+        panelView = "live";
+        renderButtons();
+        document.getElementById("livePanel").scrollIntoView({ behavior: state.settings.motion ? "smooth" : "auto", block: "start" });
+      };
+      document.getElementById("historyChip").onclick = () => {
+        panelView = "history";
+        renderButtons();
+        document.getElementById("historyPanel").scrollIntoView({ behavior: state.settings.motion ? "smooth" : "auto", block: "start" });
+      };
       document.getElementById("yesBtn").onclick = () => answerCurrent(true);
       document.getElementById("noBtn").onclick = () => answerCurrent(false);
       document.getElementById("soundBtn").onclick = () => {
@@ -1169,6 +1180,10 @@
       document.getElementById("soundBtn").classList.toggle("active", state.settings.sound);
       document.getElementById("motionBtn").classList.toggle("active", state.settings.motion);
       document.getElementById("notifBtn").classList.toggle("active", state.settings.notifications);
+      document.getElementById("liveChip").classList.toggle("active", panelView === "live");
+      document.getElementById("historyChip").classList.toggle("active", panelView === "history");
+      document.getElementById("livePanel").classList.toggle("focused", panelView === "live");
+      document.getElementById("historyPanel").classList.toggle("focused", panelView === "history");
     }
     function scheduleReminders() {
       reminderTimers.forEach(clearTimeout);
@@ -1193,16 +1208,13 @@
       const status = activeStatus();
       const entry = ensureEntry(selectedDate);
       if (selectedDate !== todayKey() && selectedDate !== lastRenderedDay) lastRenderedDay = selectedDate;
-      renderLiveMetrics(entry, status);
       document.getElementById("questionBox").dataset.mode = status.mode;
-      const today = ensureEntry(todayKey());
-      if (status.mode === "live") {
-        const q = status.quadrant.id;
-        document.getElementById("liveChip").textContent = `Live · ${status.quadrant.name}`;
-      } else {
-        document.getElementById("liveChip").textContent = `Next · ${status.quadrant.name}`;
-      }
-      renderAll();
+      renderButtons();
+      renderQuadrantTabs();
+      renderQuestionBox(entry);
+      renderLiveMetrics(entry, status);
+      document.getElementById("liveChip").textContent = status.mode === "live" ? `Live · ${status.quadrant.name}` : `Next · ${status.quadrant.name}`;
+      document.getElementById("historyChip").textContent = panelView === "history" ? "History · open" : "History";
     }
     function renderAll() {
       const entry = ensureEntry(selectedDate);
@@ -1216,8 +1228,6 @@
       renderComplaints(entry);
       renderLiveMetrics(entry, status);
       renderHistory(entry);
-      document.getElementById("historyChip").classList.toggle("active", true);
-      document.getElementById("liveChip").classList.toggle("active", true);
     }
     function boot() {
       ensureEntry(todayKey());
