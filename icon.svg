@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Momentum">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#3DDC97"/>
+      <stop offset="55%" stop-color="#FFB23E"/>
+      <stop offset="100%" stop-color="#FF5E3A"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#11131A"/>
+  <circle cx="256" cy="256" r="164" fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round" stroke-dasharray="760 180"/>
+  <path d="M154 295c30-74 63-111 102-111 25 0 42 9 58 27l28-34h16l-43 97h-18l17-40c-13-20-29-29-49-29-28 0-53 31-74 93h-37l65-147h36l-21 47c-16-10-31-15-45-15-21 0-38 17-51 52z" fill="#EEF2FF"/>
+</svg>

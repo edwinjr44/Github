@@ -1,17 +1,18 @@
-# Edwin — Portfolio Website
+# Momentum
 
-A clean, responsive, single-file portfolio landing page built with plain HTML and CSS.
-This is my first project on GitHub.
+Daily habit tracker for Edwin with four time-blocked quadrants, local persistence, notebook-style history, and PWA support.
 
-## What's here
-- `index.html` — the full website (structure, styling, and content in one file)
+## Files
 
-## Run it locally
-Just open `index.html` in any web browser.
+- `index.html` — the app
+- `manifest.webmanifest` — installable PWA metadata
+- `sw.js` — offline cache
+- `icon.svg` — app icon
 
-## Live site
-Once published with GitHub Pages, the site will be live at:
-`https://<your-username>.github.io/<repo-name>/`
+## Run locally
 
----
-Built with HTML & CSS · shipped with Git & GitHub.
+Open `index.html` in a browser, or serve the folder with any static server.
+
+## Storage
+
+Data is stored in `localStorage` on the device.
