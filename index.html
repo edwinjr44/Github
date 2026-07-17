@@ -210,6 +210,24 @@
   .qa .go{margin-left:auto;color:var(--muted);font-size:22px;transition:transform .18s,color .18s}
   .qa:hover .go{transform:translateX(4px);color:#fff}
 
+  /* ---------- stat band ---------- */
+  .statband{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;
+    padding:52px 0 10px;
+  }
+  .stat{
+    text-align:center;padding:26px 14px;border-radius:18px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+  }
+  .stat .n{
+    font-family:var(--display);font-weight:900;font-style:italic;line-height:1;
+    font-size:clamp(40px,6vw,58px);letter-spacing:1px;
+    background:linear-gradient(180deg,#fff 22%,#c4cfe0 48%,#77879e 54%,#e9eff8 82%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stat .n em{font-style:italic;-webkit-text-fill-color:var(--amber);color:var(--amber)}
+  .stat .l{margin-top:8px;color:var(--muted);font-size:13.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+
   /* ---------- sections ---------- */
   section{padding:78px 0}
   .kicker{
@@ -292,6 +310,7 @@
   }
   .shot img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
   .shot:hover img{transform:scale(1.07)}
+  @media(min-width:560px){ .shot.wide{grid-column:span 2} }
   .shot .cap{
     position:absolute;left:0;right:0;bottom:0;
     background:linear-gradient(transparent,rgba(5,6,8,.9));
@@ -366,7 +385,7 @@
     filter:drop-shadow(0 4px 16px rgba(0,0,0,.6));
   }
   .contact .hours{
-    display:inline-flex;align-items:center;gap:9px;
+    display:flex;justify-content:center;align-items:center;gap:9px;
     color:var(--amber);font-weight:800;letter-spacing:2.5px;text-transform:uppercase;font-size:14px;
   }
   .contact .note{color:var(--muted);margin-top:16px;font-size:15.5px}
@@ -449,7 +468,7 @@
     <div class="trust">
       <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> NYC‑permitted operators</span>
       <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Local &amp; long distance</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Cash 4 Cars — junk or clean</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Hundreds of cars bought on the spot</span>
     </div>
   </div>
 </div>
@@ -474,6 +493,13 @@
       <span class="go">→</span>
     </a>
   </div>
+</div>
+
+<div class="wrap statband">
+  <div class="stat reveal"><div class="n">100<em>s</em></div><div class="l">Cars bought on the spot</div></div>
+  <div class="stat reveal"><div class="n">24/7</div><div class="l">Open — holidays too</div></div>
+  <div class="stat reveal"><div class="n">5<em>+</em></div><div class="l">Boroughs &amp; Long Island</div></div>
+  <div class="stat reveal"><div class="n">1</div><div class="l">Call does it all</div></div>
 </div>
 
 <section id="services">
@@ -519,7 +545,7 @@
     <div class="junk reveal">
       <div>
         <h3>Cash 4 Cars: <span>we buy cars, running or not.</span></h3>
-        <p>Junk it or sell it — a wrecked car, a dead car, or a clean ride you're ready to let go. S&amp;S Towing buys cars all over NYC &amp; Long Island: free pickup, cash on the spot, paperwork handled.</p>
+        <p><strong style="color:var(--text)">Hundreds of cars bought on the spot</strong> — wrecked, dead, or a clean ride you're ready to let go. S&amp;S Towing buys cars all over NYC &amp; Long Island: free pickup, cash in your hand, paperwork handled.</p>
       </div>
       <a class="btn btn-amber" href="tel:+13474722024">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -535,9 +561,9 @@
     <h2 class="reveal">Our work</h2>
     <p class="section-sub reveal">Real jobs from our trucks — everyday tows, heavy-duty bus and RV removals, accident recoveries, and long-distance hauls. Tap any photo to enlarge.</p>
     <div class="gallery">
-      <button class="shot reveal" data-cap="Flatbed towing — local &amp; long distance"><img src="images/flatbed-hero.jpg" alt="S&S Towing flatbed hauling a pickup truck" loading="lazy"><span class="cap">Flatbed towing — local &amp; long distance</span></button>
+      <button class="shot wide reveal" data-cap="Flatbed towing — local &amp; long distance"><img src="images/flatbed-hero.jpg" alt="S&S Towing flatbed hauling a pickup truck" loading="lazy"><span class="cap">Flatbed towing — local &amp; long distance</span></button>
       <button class="shot reveal" data-cap="Full-size coach bus removal"><img src="images/bus-tow.jpg" alt="Coach bus being towed" loading="lazy"><span class="cap">Full-size coach bus removal</span></button>
-      <button class="shot reveal" data-cap="Heavy-duty RV tow — 24 hour service"><img src="images/rv-tow.jpg" alt="RV motorhome lifted by 24-hour tow truck" loading="lazy"><span class="cap">Heavy-duty RV tow — 24 hour service</span></button>
+      <button class="shot wide reveal" data-cap="Heavy-duty RV tow — 24 hour service"><img src="images/rv-tow.jpg" alt="RV motorhome lifted by 24-hour tow truck" loading="lazy"><span class="cap">Heavy-duty RV tow — 24 hour service</span></button>
       <button class="shot reveal" data-cap="Multi-car carrier hauls"><img src="images/multi-car.jpg" alt="Multiple cars on a carrier" loading="lazy"><span class="cap">Multi-car carrier hauls</span></button>
       <button class="shot reveal" data-cap="Day or night — we show up"><img src="images/night-tow.jpg" alt="SUV towed at night" loading="lazy"><span class="cap">Day or night — we show up</span></button>
       <button class="shot reveal" data-cap="Accident recovery"><img src="images/accident-recovery.jpg" alt="Accident-damaged car recovery" loading="lazy"><span class="cap">Accident recovery</span></button>
