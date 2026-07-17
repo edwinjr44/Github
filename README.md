@@ -1,17 +1,18 @@
-# Edwin — Portfolio Website
+# S&S Towing — Business Website
 
-A clean, responsive, single-file portfolio landing page built with plain HTML and CSS.
-This is my first project on GitHub.
+Website for **S&S Towing** — 24/7 towing service based in Queens, serving all of NYC & Long Island.
+📞 **347-472-2024** · We buy junk cars.
 
-## What's here
-- `index.html` — the full website (structure, styling, and content in one file)
-
-## Run it locally
-Just open `index.html` in any web browser.
+## Structure
+- `index.html` — the S&S Towing site (single file, plain HTML/CSS/JS)
+- `images/` — job photos & logo
+- `sitemap.xml` — for Google Search Console
+- `portfolio/` — Edwin's personal portfolio page
+- `widget-board/` — widget dashboard project
 
 ## Live site
-Once published with GitHub Pages, the site will be live at:
-`https://<your-username>.github.io/<repo-name>/`
+Published with GitHub Pages from the `main` branch root:
+`https://edwinjr44.github.io/sstowing/`
 
 ---
-Built with HTML & CSS · shipped with Git & GitHub.
+Built with HTML, CSS & JavaScript · shipped with Git & GitHub.
