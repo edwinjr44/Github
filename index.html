@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>S&amp;S Towing — 24/7 Towing &amp; Cash 4 Cars in Queens, NYC &amp; Long Island | Call 347-472-2024</title>
 <meta name="description" content="S&S Towing — fast, reliable 24/7 towing based in Queens, serving all of NYC, Brooklyn & Long Island. Cars, trucks, buses, RVs — we tow everything. Cash 4 Cars: we buy junk & used cars on the spot. Call 347-472-2024." />
 <meta name="theme-color" content="#0a0b0e" />
@@ -43,6 +43,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  html,body{overflow-x:hidden}
   body{
     font-family:var(--body);
     background:var(--bg); color:var(--text); line-height:1.6;
@@ -96,6 +97,10 @@
     box-shadow:0 4px 16px rgba(229,50,45,.4);
   }
   @media(max-width:920px){ nav.main a:not(.nav-call){display:none} }
+  @media(max-width:560px){
+    .brand .name small{white-space:normal}
+    .nav-call{padding:10px 14px;font-size:14px}
+  }
 
   /* ---------- hero ---------- */
   .hero{position:relative;overflow:hidden;min-height:min(92vh,860px);display:flex;align-items:center}
@@ -399,7 +404,7 @@
     position:fixed;left:0;right:0;bottom:0;z-index:50;
     background:linear-gradient(180deg,var(--red-hot),var(--red-dark));
     display:flex;align-items:center;justify-content:center;gap:11px;
-    padding:15px;text-decoration:none;color:#fff;
+    padding:15px 15px calc(15px + env(safe-area-inset-bottom));text-decoration:none;color:#fff;
     font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:1.2px;text-transform:uppercase;
     box-shadow:0 -6px 24px rgba(0,0,0,.55);
   }
