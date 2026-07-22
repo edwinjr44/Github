@@ -75,6 +75,16 @@
   .repo a:hover{color:var(--accent)}
   .repo .meta{color:var(--muted);font-size:12px;white-space:nowrap}
 
+  /* market movers */
+  .mm-rate{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+  .mm-rate-sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .mm-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .mm-list li{font-size:13px;line-height:1.35}
+  .mm-list a{color:var(--text);text-decoration:none}
+  .mm-list a:hover{color:var(--accent)}
+  .mm-meta{color:var(--muted);font-size:12px}
+  .mm-empty{color:var(--muted);font-size:13px}
+
   /* connection card body */
   .conn-note{color:var(--muted);font-size:13px;line-height:1.5}
   .conn-note code{background:#0c1120;border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:12px}
@@ -148,6 +158,12 @@
       <div id="ghBody"><div class="empty">Loading repos…</div></div>
     </div>
 
+    <!-- MARKET MOVERS -->
+    <div class="card">
+      <h3><span class="dot" id="mmDot"></span>Market movers <span class="pill live">live</span></h3>
+      <div id="mmBody"><div class="mm-empty">Loading market signals…</div></div>
+    </div>
+
     <!-- NOTION (configurable connection) -->
     <div class="card">
       <h3><span class="dot off" id="notionDot"></span>Notion <span class="pill" id="notionPill">not connected</span></h3>
@@ -205,6 +221,8 @@ const KEY = "widgetBoard.v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
 const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
 let state = Object.assign({ name:"Edwin", city:"", gh:"edwinjr44", notion:"", todos:[], notes:"" }, load());
+const MARKET_MOVERS_REFRESH_MS = 5 * 60 * 1000;
+const TRUMP_NEWS_QUERY = "trump";
 
 /* ---------- header ---------- */
 function paintHeader(){
@@ -315,6 +333,83 @@ async function loadGitHub(){
   }
 }
 
+/* ---------- market movers (Fed funds + Trump headlines) ---------- */
+async function fetchFedFundsRate(){
+  const r = await fetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS");
+  if(!r.ok) throw new Error("Failed to fetch Fed Funds rate");
+  const csv = await r.text();
+  const lines = csv.trim().split(/\r?\n/).slice(1).reverse();
+  for(const line of lines){
+    const [date,value] = line.split(",");
+    if(value && value !== "."){
+      return {date, value:Number(value)};
+    }
+  }
+  throw new Error("No valid Fed Funds rate data available");
+}
+async function fetchTrumpHeadlines(){
+  const r = await fetch(`https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(TRUMP_NEWS_QUERY)}&mode=ArtList&maxrecords=3&sort=DateDesc&format=json`);
+  if(!r.ok) throw new Error("Failed to fetch headlines");
+  const j = await r.json();
+  const items = Array.isArray(j.articles) ? j.articles : [];
+  return items.slice(0,3).map(a=>({
+    title:a.title || "Untitled headline",
+    url:a.url || "#",
+    source:a.source || "news"
+  }));
+}
+function safeLink(url){
+  try{
+    const u = new URL(url);
+    return (u.protocol === "http:" || u.protocol === "https:") ? u.href : "#";
+  }catch{
+    return "#";
+  }
+}
+async function loadMarketMovers(){
+  const body = document.getElementById("mmBody");
+  const dot = document.getElementById("mmDot");
+  dot.classList.add("off");
+  body.innerHTML = '<div class="mm-empty">Loading market signals…</div>';
+  try{
+    const [fed, headlines] = await Promise.all([fetchFedFundsRate(), fetchTrumpHeadlines()]);
+    body.innerHTML = "";
+    const rate = document.createElement("div");
+    rate.className = "mm-rate";
+    rate.textContent = `${fed.value.toFixed(2)}%`;
+    const rateSub = document.createElement("div");
+    rateSub.className = "mm-rate-sub";
+    rateSub.textContent = `Fed Funds (latest reported: ${fed.date})`;
+    body.append(rate, rateSub);
+    if(headlines.length){
+      const ul = document.createElement("ul");
+      ul.className = "mm-list";
+      headlines.forEach(h=>{
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = safeLink(h.url);
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = h.title;
+        const meta = document.createElement("span");
+        meta.className = "mm-meta";
+        meta.textContent = ` · ${h.source}`;
+        li.append(a, meta);
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    } else {
+      const empty = document.createElement("div");
+      empty.className = "mm-empty";
+      empty.textContent = "No recent headlines available right now.";
+      body.appendChild(empty);
+    }
+    dot.classList.remove("off");
+  }catch{
+    body.innerHTML = '<div class="mm-empty">Market feed unavailable. Try again in a few minutes.</div>';
+  }
+}
+
 /* ---------- Notion (proxy-based connection) ---------- */
 async function loadNotion(){
   const body=document.getElementById("notionBody");
@@ -373,7 +468,8 @@ document.getElementById("saveBtn").onclick=()=>{
 };
 
 /* ---------- boot ---------- */
-paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadNotion();
+paintHeader(); renderTodos(); loadWeather(); loadGitHub(); loadMarketMovers(); loadNotion();
+window.marketMoversIntervalId = setInterval(loadMarketMovers, MARKET_MOVERS_REFRESH_MS);
 </script>
 </body>
 </html>
